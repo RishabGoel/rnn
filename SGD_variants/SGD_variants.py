@@ -2,8 +2,34 @@ import numpy as np
 
 
 class SGDvariants(object):
+	"""
+	This class implements the sgd and learning rate schedules 
+	"""
 	
 	def __init__(self, exp_base = 10, r = 2.5*1e8, c = 0.75, momentum_gamma = 0.9, adag_epsilon = 1, rms_gamma = 0.9, adam_beta1 = 0.9, adam_beta2 = 0.999, adam_epsilon = 1e-8):
+		"""
+
+		exp_base : This is required in exponential scheduling. This is the base to which iteration/time is raised to
+					get the new learning rate
+
+		r : This is a parameter for scaling in the time/iteration number in power scheduling of learning rate.
+
+		c : This is the power that is raised to scaled iteration, in power scheduling of learning rate.
+
+		momentum_gamma : This is the decay factor for accmulating the gradients over time. This id required in momentum
+						schedule of sgd
+
+		adag_epsilon : This is required in AdaGrad sgd, to prevent division by zerro
+
+		rms_gamma : This is required in RMSprop sgd. This acts as a decay constant
+
+		adam_beta1 : This is required in Adaptive Moment Estimation. This is known as the first moment.
+
+		adam_beta2 : This is required in Adaptive Moment Estimation. This is known as the second moment.
+
+		adam_epsilon : This is required in AdaGrad sgd, to prevent division by zerro
+
+		"""
 		self.exp_base = exp_base
 		self.r = r
 		self.c = c
@@ -48,13 +74,9 @@ class SGDvariants(object):
 
 	def Adam(self, gradient, lr, weights, params):
 		params["first_moment"] = self.adam_beta1 * params["first_moment"] + (1-self.adam_beta1) * gradient
-		# print params["first_moment"]
 		# params["first_moment"] = params["first_moment"] / (1 - self.adam_beta1)
-		# print params["first_moment"]
 		params["second_moment"] = self.adam_beta2 * params["second_moment"] + (1 - self.adam_beta2) * np.square(gradient)
-		# print params["second_moment"]
 		# params["second_moment"] = params["second_moment"] / (1 - self.adam_beta2)
-		# print params["second_moment"]
 		gradient = np.true_divide(params["first_moment"], np.sqrt(params["second_moment"]) + self.adam_epsilon)
 		weights = weights - lr * gradient
 
