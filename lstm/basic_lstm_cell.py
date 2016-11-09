@@ -51,7 +51,9 @@ def rnn_step(X, c, h):
     c_hat = tf.tanh(tf.matmul(X, W_c_x) + tf.matmul(h, W_c_h) + b_c)
     c = f*c + i*c_hat
     h = o * tf.tanh(c)
+    h_drop = tf.nn.dropout(h,0.5)
     return c, h
+    # return c, h_drop
 
 
 X = tf.placeholder("float32", [1, bow_size])
@@ -65,6 +67,11 @@ output = tf.nn.softmax(tf.matmul(h, W_o) + b__o)
 cross_entropy = -tf.reduce_sum(Y * tf.log(output))
 
 optimizer = tf.train.AdamOptimizer()
+
+gvs = optimizer.compute_gradients(cross_entropy)
+capped_gvs = [(tf.clip_by_value(grad, -3., 3.), var) for grad, var in gvs]
+optimizer.apply_gradients(capped_gvs)
+
 minimize = optimizer.minimize(cross_entropy)
 mistakes = tf.not_equal(tf.arg_max(output,1), tf.arg_max(Y,1))
 error = tf.cast(mistakes, "float32")
