@@ -78,15 +78,19 @@ error = tf.cast(mistakes, "float32")
 
 
 init_op = tf.initialize_all_variables()
-correct = 0
+correct = 0.0
+c_e = 0.0 # average test cross_entropy
 with tf.Session() as sess:
     sess.run(init_op)
     for i in range(100):
         for i in range(len(x_inp)):
     #         print "train ",i
             sess.run(minimize, feed_dict = {X : x_inp[i], Y : y_out[i]})
+
     for i in range(len(x_inp)):
-        if sess.run(error, feed_dict = {X : x_inp[i], Y : y_out[i]})[0] != 1:
+        a, b = sess.run([cross_entropy, error], feed_dict = {X : x_inp[i], Y : y_out[i]})
+        c_e += a
+        if b[0] != 1:
             correct += 1
-    
+print "peplexity is ",np.exp(-(c_e/float(len(x_inp))))
 print correct/float(len(x_inp))
